@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fasal Pathshala - Smart Farming App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Live Price Ticker -->
+    <div class="price-ticker" id="priceTicker">
+        <div class="ticker-content">
+            <span class="ticker-item">Rice ₹1850 📈 +2.5%</span>
+            <span class="ticker-item">Wheat ₹2100 📈 +1.2%</span>
+            <span class="ticker-item">Cotton ₹5200 📈 +3.1%</span>
+            <span class="ticker-item">Onion ₹1200 📉 -5.2%</span>
+        </div>
+    </div>
+
+    <!-- Language Selection Bar -->
+    <div class="language-bar">
+        <div class="language-selector">
+            <button class="lang-btn active" onclick="setLanguage('en')" data-lang="en">🇺🇸 EN</button>
+            <button class="lang-btn" onclick="setLanguage('hi')" data-lang="hi">🇮🇳 हिं</button>
+            <button class="lang-btn" onclick="setLanguage('pb')" data-lang="pb">🇮🇳 ਪੰ</button>
+        </div>
+        <div class="accessibility-controls">
+            <button class="accessibility-btn" onclick="toggleHighContrast()" title="High Contrast">🌗</button>
+            <button class="accessibility-btn" onclick="increaseFontSize()" title="Increase Font Size">A+</button>
+        </div>
+    </div>
+
+    <!-- AI Voice Assistant -->
+    <div class="ai-assistant" id="aiAssistant">
+        <div class="ai-avatar" onclick="toggleAssistant()">
+            <div class="avatar-icon">🤖</div>
+            <div class="voice-pulse" id="voicePulse"></div>
+        </div>
+        <div class="ai-panel hidden" id="aiPanel">
+            <div class="ai-header">
+                <h4 class="ai-name" data-en="Krishi Mitra" data-hi="कृषि मित्र" data-pb="ਖੇਤੀ ਮਿੱਤਰ">Krishi Mitra</h4>
+                <button class="close-ai" onclick="closeAssistant()">×</button>
+            </div>
+            <div class="ai-messages" id="aiMessages">
+                <div class="ai-message">
+                    <span data-en="Hello farmer! How can I help you today?" data-hi="नमस्ते किसान भाई! आज मैं आपकी कैसे मदद कर सकता हूं?" data-pb="ਸਤ ਸ੍ਰੀ ਅਕਾਲ ਕਿਸਾਨ ਜੀ! ਅੱਜ ਮੈਂ ਤੁਹਾਡੀ ਕਿਵੇਂ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ?">Hello farmer! How can I help you today?</span>
+                </div>
+            </div>
+            <div class="ai-controls">
+                <button class="voice-btn" id="voiceBtn" onclick="startVoiceCommand()">
+                    <span class="mic-icon">🎤</span>
+                    <span data-en="Speak" data-hi="बोलें" data-pb="ਬੋਲੋ">Speak</span>
+                </button>
+                <button class="ai-help-btn" onclick="showVoiceCommands()">
+                    <span data-en="Help" data-hi="सहायता" data-pb="ਮਦਦ">Help</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice Commands Help -->
+    <div class="modal hidden" id="voiceCommandsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-en="Voice Commands" data-hi="आवाज कमांड" data-pb="ਆਵਾਜ਼ ਕਮਾਂਡ">Voice Commands</h3>
+                <button class="close-btn" onclick="hideVoiceCommands()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="command-list">
+                    <div class="command-item">
+                        <strong>"Hey Krishi"</strong> - <span data-en="Activate assistant" data-hi="सहायक सक्रिय करें" data-pb="ਸਹਾਇਕ ਸਰਗਰਮ ਕਰੋ">Activate assistant</span>
+                    </div>
+                    <div class="command-item">
+                        <strong data-en="Weather update" data-hi="मौसम बताओ" data-pb="ਮੌਸਮ ਦੱਸੋ">"Weather update"</strong>
+                    </div>
+                    <div class="command-item">
+                        <strong data-en="Market rates" data-hi="मंडी भाव" data-pb="ਮੰਡੀ ਦੇ ਭਾਅ">"Market rates"</strong>
+                    </div>
+                    <div class="command-item">
+                        <strong data-en="Crop suggestion" data-hi="फसल सुझाव" data-pb="ਫਸਲ ਸੁਝਾਅ">"Crop suggestion"</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div class="screen active" id="loginScreen">
+        <div class="login-container">
+            <div class="app-logo">
+                <div class="logo-container">
+                    <div class="logo-icon">🌾</div>
+                    <div class="logo-animation"></div>
+                </div>
+                <h1 data-en="Fasal Pathshala" data-hi="फसल पाठशाला" data-pb="ਫਸਲ ਪਾਠਸ਼ਾਲਾ">Fasal Pathshala</h1>
+                <p class="tagline" data-en="Smart Farming for Better Future" data-hi="बेहतर भविष्य के लिए स्मार्ट खेती" data-pb="ਬਿਹਤਰ ਭਵਿੱਖ ਲਈ ਸਮਾਰਟ ਖੇਤੀ">Smart Farming for Better Future</p>
+            </div>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <label class="form-label" data-en="Mobile Number" data-hi="मोबाइल नंबर" data-pb="ਮੋਬਾਈਲ ਨੰਬਰ">Mobile Number</label>
+                    <div class="input-group">
+                        <input type="tel" class="form-control" id="mobileInput" placeholder="Enter your mobile number" maxlength="10">
+                        <button class="voice-input-btn" onclick="startVoiceInput('mobile')">🎤</button>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="otpGroup" style="display: none;">
+                    <label class="form-label" data-en="Enter OTP" data-hi="OTP दर्ज करें" data-pb="OTP ਦਾਖਲ ਕਰੋ">Enter OTP</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="otpInput" placeholder="Enter 4-digit OTP" maxlength="4">
+                        <button class="voice-input-btn" onclick="startVoiceInput('otp')">🎤</button>
+                    </div>
+                </div>
+                
+                <div class="biometric-option" id="biometricOption" style="display: none;">
+                    <button class="biometric-btn" onclick="authenticateBiometric()">
+                        <span class="biometric-icon">👆</span>
+                        <span data-en="Use Fingerprint" data-hi="फिंगरप्रिंट का उपयोग करें" data-pb="ਫਿੰਗਰਪ੍ਰਿੰਟ ਵਰਤੋ">Use Fingerprint</span>
+                    </button>
+                </div>
+                
+                <button class="btn btn--primary btn--full-width btn-large" id="loginBtn" onclick="handleLogin()">
+                    <span class="btn-text" data-en="Send OTP" data-hi="OTP भेजें" data-pb="OTP ਭੇਜੋ">Send OTP</span>
+                    <div class="loading-spinner hidden"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Home Screen -->
+    <div class="screen" id="homeScreen">
+        <div class="header">
+            <div class="greeting-section">
+                <h2 class="welcome-text" data-en="Namaste Kisaan!" data-hi="नमस्ते किसान!" data-pb="ਸਤ ਸ੍ਰੀ ਅਕਾਲ ਕਿਸਾਨ ਜੀ!">Namaste Kisaan!</h2>
+                <div class="user-location">📍 <span data-en="Punjab, India" data-hi="पंजाब, भारत" data-pb="ਪੰਜਾਬ, ਭਾਰਤ">Punjab, India</span></div>
+            </div>
+            <div class="header-actions">
+                <button class="notification-btn" onclick="showNotifications()">
+                    🔔
+                    <span class="notification-badge">3</span>
+                </button>
+                <div class="connection-status" id="connectionStatus">
+                    <span class="status-dot online"></span>
+                    <span class="status-text" data-en="Online" data-hi="ऑनलाइन" data-pb="ਆਨਲਾਈਨ">Online</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="weather-widget enhanced">
+            <div class="weather-primary">
+                <div class="weather-icon animated">☀️</div>
+                <div class="weather-info">
+                    <div class="temp-display">
+                        <span class="temp">28°C</span>
+                        <div class="feels-like">
+                            <span data-en="Feels like 32°C" data-hi="महसूस 32°C" data-pb="ਲੱਗਦਾ 32°C">Feels like 32°C</span>
+                        </div>
+                    </div>
+                    <div class="weather-condition" data-en="Partly Cloudy" data-hi="आंशिक बादल" data-pb="ਅੰਸ਼ਿਕ ਬੱਦਲਵਾਈ">Partly Cloudy</div>
+                </div>
+            </div>
+            <div class="weather-details">
+                <div class="weather-detail">
+                    <span class="detail-icon">💧</span>
+                    <span class="detail-value">65%</span>
+                    <span class="detail-label" data-en="Humidity" data-hi="नमी" data-pb="ਨਮੀ">Humidity</span>
+                </div>
+                <div class="weather-detail">
+                    <span class="detail-icon">💨</span>
+                    <span class="detail-value">12km/h</span>
+                    <span class="detail-label" data-en="Wind" data-hi="हवा" data-pb="ਹਵਾ">Wind</span>
+                </div>
+                <div class="weather-detail">
+                    <span class="detail-icon">🌅</span>
+                    <span class="detail-value">6:24</span>
+                    <span class="detail-label" data-en="Sunrise" data-hi="सूर्योदय" data-pb="ਸੂਰਜ ਚੜ੍ਹਨਾ">Sunrise</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <button class="quick-action-btn" onclick="quickWeatherUpdate()">
+                <span class="action-icon">🌦️</span>
+                <span data-en="Weather Alert" data-hi="मौसम अलर्ट" data-pb="ਮੌਸਮ ਚੇਤਾਵਨੀ">Weather Alert</span>
+            </button>
+            <button class="quick-action-btn" onclick="quickPriceCheck()">
+                <span class="action-icon">💰</span>
+                <span data-en="Price Alert" data-hi="दाम अलर्ट" data-pb="ਕੀਮਤ ਚੇਤਾਵਨੀ">Price Alert</span>
+            </button>
+            <button class="quick-action-btn emergency" onclick="showEmergencyContacts()">
+                <span class="action-icon">🆘</span>
+                <span data-en="Emergency" data-hi="आपातकाल" data-pb="ਐਮਰਜੈਂਸੀ">Emergency</span>
+            </button>
+        </div>
+
+        <div class="dashboard-grid enhanced">
+            <div class="dashboard-card featured" onclick="showScreen('cropAdvisoryScreen')">
+                <div class="card-background"></div>
+                <div class="card-icon">🌱</div>
+                <h3 data-en="Smart Crop Advisory" data-hi="स्मार्ट फसल सलाह" data-pb="ਸਮਾਰਟ ਫਸਲ ਸਲਾਹ">Smart Crop Advisory</h3>
+                <p data-en="AI-powered crop recommendations" data-hi="AI आधारित फसल सुझाव" data-pb="AI ਅਧਾਰਿਤ ਫਸਲ ਸੁਝਾਅ">AI-powered crop recommendations</p>
+                <div class="ai-confidence-badge">95% AI</div>
+            </div>
+            
+            <div class="dashboard-card" onclick="showScreen('weatherScreen')">
+                <div class="card-icon">🌦️</div>
+                <h3 data-en="Weather Updates" data-hi="मौसम अपडेट" data-pb="ਮੌਸਮ ਅੱਪਡੇਟ">Weather Updates</h3>
+                <p data-en="7-day forecast & alerts" data-hi="7 दिन का पूर्वानुमान और अलर्ट" data-pb="7 ਦਿਨਾਂ ਦੀ ਪੇਸ਼ਕਸ਼ ਅਤੇ ਚੇਤਾਵਨੀ">7-day forecast & alerts</p>
+                <div class="live-indicator">LIVE</div>
+            </div>
+            
+            <div class="dashboard-card pulse" onclick="showScreen('mandiScreen')">
+                <div class="card-icon">💰</div>
+                <h3 data-en="Live Mandi Prices" data-hi="लाइव मंडी भाव" data-pb="ਲਾਈਵ ਮੰਡੀ ਰੇਟ">Live Mandi Prices</h3>
+                <p data-en="Real-time crop prices" data-hi="वास्तविक समय फसल की कीमतें" data-pb="ਰੀਅਲ-ਟਾਈਮ ਫਸਲ ਕੀਮਤਾਂ">Real-time crop prices</p>
+                <div class="price-preview">₹1850 📈</div>
+            </div>
+            
+            <div class="dashboard-card" onclick="showScreen('learningScreen')">
+                <div class="card-icon">📚</div>
+                <h3 data-en="Learning Hub" data-hi="शिक्षा केंद्र" data-pb="ਸਿੱਖਿਆ ਕੇਂਦਰ">Learning Hub</h3>
+                <p data-en="Voice-guided tutorials" data-hi="आवाज-निर्देशित ट्यूटोरियल" data-pb="ਆਵਾਜ਼-ਨਿਰਦੇਸ਼ਿਤ ਟਿਊਟੋਰਿਅਲ">Voice-guided tutorials</p>
+                <div class="progress-ring">
+                    <svg width="24" height="24">
+                        <circle cx="12" cy="12" r="10" fill="none" stroke="#e0e0e0" stroke-width="2"/>
+                        <circle cx="12" cy="12" r="10" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-dasharray="63" stroke-dashoffset="25"/>
+                    </svg>
+                    <span>60%</span>
+                </div>
+            </div>
+            
+            <div class="dashboard-card" onclick="showScreen('communityScreen')">
+                <div class="card-icon">👥</div>
+                <h3 data-en="Community Forum" data-hi="सामुदायिक मंच" data-pb="ਕਮਿਊਨਿਟੀ ਫੋਰਮ">Community Forum</h3>
+                <p data-en="Voice posts & expert chat" data-hi="आवाज पोस्ट और विशेषज्ञ चैट" data-pb="ਵੌਇਸ ਪੋਸਟ ਅਤੇ ਐਕਸਪਰਟ ਚੈਟ">Voice posts & expert chat</p>
+                <div class="community-activity">
+                    <span class="activity-dot active"></span>
+                    <span class="activity-count">150</span>
+                </div>
+            </div>
+
+            <div class="dashboard-card" onclick="showScreen('governmentScreen')">
+                <div class="card-icon">🏛️</div>
+                <h3 data-en="Government Schemes" data-hi="सरकारी योजनाएं" data-pb="ਸਰਕਾਰੀ ਸਕੀਮਾਂ">Government Schemes</h3>
+                <p data-en="Subsidies & benefits" data-hi="सब्सिडी और लाभ" data-pb="ਸਬਸਿਡੀ ਅਤੇ ਲਾਭ">Subsidies & benefits</p>
+                <div class="new-scheme-badge" data-en="NEW" data-hi="नया" data-pb="ਨਵਾਂ">NEW</div>
+            </div>
+        </div>
+
+        <div class="farming-calendar">
+            <h3 data-en="Today's Farming Activities" data-hi="आज की कृषि गतिविधियां" data-pb="ਅੱਜ ਦੀਆਂ ਖੇਤੀ ਗਤੀਵਿਧੀਆਂ">Today's Farming Activities</h3>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <span class="activity-time">6:00 AM</span>
+                    <span class="activity-desc" data-en="Water the wheat field" data-hi="गेहूं के खेत को पानी दें" data-pb="ਕਣਕ ਦੇ ਖੇਤ ਨੂੰ ਪਾਣੀ ਦਿਓ">Water the wheat field</span>
+                    <button class="activity-done">✓</button>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-time">4:00 PM</span>
+                    <span class="activity-desc" data-en="Check for pests" data-hi="कीटों की जांच करें" data-pb="ਕੀੜਿਆਂ ਦੀ ਜਾਂਚ ਕਰੋ">Check for pests</span>
+                    <button class="activity-done">✓</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crop Advisory Screen -->
+    <div class="screen" id="cropAdvisoryScreen">
+        <div class="screen-header enhanced">
+            <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
+            <h2 data-en="Smart Crop Advisory" data-hi="स्मार्ट फसल सलाह" data-pb="ਸਮਾਰਟ ਫਸਲ ਸਲਾਹ">Smart Crop Advisory</h2>
+            <button class="voice-help-btn" onclick="startVoiceAssistant('crop')" title="Voice help">🎤</button>
+        </div>
+        
+        <div class="ai-advisor-panel">
+            <div class="advisor-avatar">🤖</div>
+            <div class="advisor-message">
+                <span data-en="I'll help you choose the perfect crop based on your conditions. Let's start!" data-hi="मैं आपकी स्थितियों के आधार पर सही फसल चुनने में मदद करूंगा। शुरू करते हैं!" data-pb="ਮੈਂ ਤੁਹਾਡੀਆਂ ਸਥਿਤੀਆਂ ਦੇ ਆਧਾਰ 'ਤੇ ਸਹੀ ਫਸਲ ਚੁਣਨ ਵਿੱਚ ਮਦਦ ਕਰਾਂਗਾ। ਸ਼ੁਰੂ ਕਰਦੇ ਹਾਂ!">I'll help you choose the perfect crop based on your conditions. Let's start!</span>
+            </div>
+        </div>
+        
+        <div class="advisory-form enhanced">
+            <div class="form-section">
+                <h4 data-en="Soil Information" data-hi="मिट्टी की जानकारी" data-pb="ਮਿੱਟੀ ਦੀ ਜਾਣਕਾਰੀ">Soil Information</h4>
+                
+                <div class="form-group">
+                    <label class="form-label" data-en="Soil Type" data-hi="मिट्टी का प्रकार" data-pb="ਮਿੱਟੀ ਦੀ ਕਿਸਮ">Soil Type</label>
+                    <select class="form-control enhanced" id="soilType">
+                        <option value="" data-en="Select soil type" data-hi="मिट्टी का प्रकार चुनें" data-pb="ਮਿੱਟੀ ਦੀ ਕਿਸਮ ਚੁਣੋ">Select soil type</option>
+                        <option value="clay" data-en="Clay Soil" data-hi="चिकनी मिट्टी" data-pb="ਮਿੱਟੀ ਮਿੱਟੀ">Clay Soil</option>
+                        <option value="sandy" data-en="Sandy Soil" data-hi="रेतीली मिट्टी" data-pb="ਰੇਤਲੀ ਮਿੱਟੀ">Sandy Soil</option>
+                        <option value="loam" data-en="Loam Soil" data-hi="दोमट मिट्टी" data-pb="ਦੋਮਟ ਮਿੱਟੀ">Loam Soil</option>
+                        <option value="black" data-en="Black Soil" data-hi="काली मिट्टी" data-pb="ਕਾਲੀ ਮਿੱਟੀ">Black Soil</option>
+                    </select>
+                    <button class="voice-input-btn" onclick="startVoiceInput('soil')">🎤</button>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" data-en="pH Level" data-hi="pH स्तर" data-pb="pH ਪੱਧਰ">pH Level: <span id="phValue" class="ph-display">7.0</span></label>
+                    <div class="ph-slider-container">
+                        <input type="range" class="ph-slider enhanced" id="phSlider" min="4" max="9" step="0.1" value="7.0" oninput="updatePH(this.value)">
+                        <div class="ph-scale">
+                            <span class="ph-marker acidic" data-en="Acidic" data-hi="अम्लीय" data-pb="ਤੇਜ਼ਾਬੀ">Acidic</span>
+                            <span class="ph-marker neutral" data-en="Neutral" data-hi="तटस्थ" data-pb="ਨਿਰਪੱਖ">Neutral</span>
+                            <span class="ph-marker alkaline" data-en="Alkaline" data-hi="क्षारीय" data-pb="ਖਾਰੀ">Alkaline</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h4 data-en="Location & Climate" data-hi="स्थान और जलवायु" data-pb="ਸਥਾਨ ਅਤੇ ਜਲਵਾਯੂ">Location & Climate</h4>
+                
+                <div class="form-group">
+                    <label class="form-label" data-en="State/Region" data-hi="राज्य/क्षेत्र" data-pb="ਰਾਜ/ਖੇਤਰ">State/Region</label>
+                    <select class="form-control enhanced" id="stateSelect">
+                        <option value="" data-en="Select state" data-hi="राज्य चुनें" data-pb="ਰਾਜ ਚੁਣੋ">Select state</option>
+                        <option value="punjab" data-en="Punjab" data-hi="पंजाब" data-pb="ਪੰਜਾਬ">Punjab</option>
+                        <option value="haryana" data-en="Haryana" data-hi="हरियाणा" data-pb="ਹਰਿਆਣਾ">Haryana</option>
+                        <option value="up" data-en="Uttar Pradesh" data-hi="उत्तर प्रदेश" data-pb="ਉੱਤਰ ਪ੍ਰਦੇਸ਼">Uttar Pradesh</option>
+                        <option value="mp" data-en="Madhya Pradesh" data-hi="मध्य प्रदेश" data-pb="ਮੱਧ ਪ੍ਰਦੇਸ਼">Madhya Pradesh</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" data-en="Farm Area (Acres)" data-hi="खेत का क्षेत्र (एकड़)" data-pb="ਫਾਰਮ ਖੇਤਰ (ਏਕੜ)">Farm Area (Acres)</label>
+                    <input type="number" class="form-control enhanced" id="farmArea" placeholder="Enter area in acres" min="0.1" step="0.1">
+                </div>
+            </div>
+            
+            <button class="btn btn--primary btn--full-width btn-large enhanced" onclick="getCropRecommendation()">
+                <span class="btn-icon">🤖</span>
+                <span class="btn-text" data-en="Get AI Recommendation" data-hi="AI सिफारिश प्राप्त करें" data-pb="AI ਸਿਫ਼ਾਰਿਸ਼ ਲਓ">Get AI Recommendation</span>
+                <div class="btn-loading hidden">
+                    <div class="loading-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            </button>
+        </div>
+        
+        <div class="recommendation-results enhanced" id="cropResults" style="display: none;">
+            <div class="ai-confidence-header">
+                <div class="confidence-meter">
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: 95%"></div>
+                    </div>
+                    <span class="confidence-text" data-en="AI Confidence: 95%" data-hi="AI विश्वसनीयता: 95%" data-pb="AI ਭਰੋਸਾ: 95%">AI Confidence: 95%</span>
+                </div>
+                <button class="speak-btn" onclick="speakRecommendations()">🔊</button>
+            </div>
+            <div id="cropRecommendations"></div>
+        </div>
+    </div>
+
+    <!-- Mandi Prices Screen -->
+    <div class="screen" id="mandiScreen">
+        <div class="screen-header enhanced">
+            <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
+            <h2 data-en="Live Mandi Prices" data-hi="लाइव मंडी भाव" data-pb="ਲਾਈਵ ਮੰਡੀ ਰੇਟ">Live Mandi Prices</h2>
+            <div class="header-actions">
+                <button class="refresh-btn" onclick="refreshPrices()" title="Refresh prices">🔄</button>
+                <button class="alert-btn" onclick="showPriceAlerts()" title="Price alerts">🔔</button>
+            </div>
+        </div>
+        
+        <div class="live-price-header">
+            <div class="live-indicator-large">
+                <span class="pulse-dot"></span>
+                <span data-en="LIVE PRICES" data-hi="लाइव भाव" data-pb="ਲਾਈਵ ਰੇਟ">LIVE PRICES</span>
+            </div>
+            <div class="last-updated" id="lastUpdated">
+                <span data-en="Updated" data-hi="अपडेटेड" data-pb="ਅੱਪਡੇਟ">Updated</span> <span class="update-time">2 mins ago</span>
+            </div>
+        </div>
+        
+        <div class="market-filters">
+            <select class="form-control" id="marketSelect">
+                <option value="all" data-en="All Markets" data-hi="सभी बाजार" data-pb="ਸਾਰੇ ਬਾਜ਼ਾਰ">All Markets</option>
+                <option value="delhi">Delhi</option>
+                <option value="punjab">Punjab</option>
+                <option value="up">UP</option>
+                <option value="gujarat">Gujarat</option>
+                <option value="maharashtra">Maharashtra</option>
+            </select>
+            <button class="voice-search-btn" onclick="startVoiceSearch()">
+                <span>🎤</span>
+                <span data-en="Voice Search" data-hi="आवाज खोज" data-pb="ਵੌਇਸ ਸਰਚ">Voice Search</span>
+            </button>
+        </div>
+        
+        <div class="price-list enhanced" id="priceList">
+            <!-- Prices will be loaded dynamically -->
+        </div>
+        
+        <div class="market-insights">
+            <h3 data-en="Market Insights" data-hi="बाजार अंतर्दृष्टि" data-pb="ਮਾਰਕੀਟ ਸਮਝ">Market Insights</h3>
+            <div class="insight-cards">
+                <div class="insight-card trend-up">
+                    <span class="insight-icon">📈</span>
+                    <span class="insight-text" data-en="Rice prices trending up by 12% this week" data-hi="इस सप्ताह चावल की कीमत 12% बढ़ी" data-pb="ਇਸ ਹਫ਼ਤੇ ਚੌਲਾਂ ਦੀ ਕੀਮਤ 12% ਵਧੀ">Rice prices trending up by 12% this week</span>
+                </div>
+                <div class="insight-card forecast">
+                    <span class="insight-icon">🔮</span>
+                    <span class="insight-text" data-en="Wheat demand expected to rise next month" data-hi="अगले महीने गेहूं की मांग बढ़ने की उम्मीद" data-pb="ਅਗਲੇ ਮਹੀਨੇ ਕਣਕ ਦੀ ਮੰਗ ਵਧਣ ਦੀ ਉਮੀਦ">Wheat demand expected to rise next month</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather Screen -->
+    <div class="screen" id="weatherScreen">
+        <div class="screen-header enhanced">
+            <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
+            <h2 data-en="Weather Updates" data-hi="मौसम अपडेट" data-pb="ਮੌਸਮ ਅੱਪਡੇਟ">Weather Updates</h2>
+            <button class="voice-weather-btn" onclick="getVoiceWeather()">🎤</button>
+        </div>
+        
+        <div class="current-weather enhanced">
+            <div class="weather-background"></div>
+            <div class="weather-main">
+                <div class="weather-icon-large animated">☀️</div>
+                <div class="weather-primary-info">
+                    <h3 class="current-temp">28°C</h3>
+                    <p class="weather-condition" data-en="Partly Cloudy" data-hi="आंशिक बादल" data-pb="ਅੰਸ਼ਿਕ ਬੱਦਲਵਾਈ">Partly Cloudy</p>
+                    <div class="weather-location">📍 Punjab, India</div>
+                </div>
+            </div>
+            <div class="weather-stats">
+                <div class="stat">
+                    <span class="stat-icon">💧</span>
+                    <span class="stat-value">65%</span>
+                    <span class="stat-label" data-en="Humidity" data-hi="नमी" data-pb="ਨਮੀ">Humidity</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-icon">💨</span>
+                    <span class="stat-value">12km/h</span>
+                    <span class="stat-label" data-en="Wind" data-hi="हवा" data-pb="ਹਵਾ">Wind</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-icon">👁️</span>
+                    <span class="stat-value">10km</span>
+                    <span class="stat-label" data-en="Visibility" data-hi="दृश्यता" data-pb="ਦਿੱਖ">Visibility</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="forecast-section enhanced">
+            <h3 data-en="7-Day Forecast" data-hi="7 दिन का पूर्वानुमान" data-pb="7 ਦਿਨਾਂ ਦੀ ਪੇਸ਼ਕਸ਼">7-Day Forecast</h3>
+            <div class="forecast-list horizontal" id="forecastList">
+                <!-- Forecast items populated by JS -->
+            </div>
+        </div>
+        
+        <div class="weather-alerts enhanced">
+            <h3 data-en="Weather Alerts" data-hi="मौसम चेतावनी" data-pb="ਮੌਸਮ ਚੇਤਾਵਨੀ">Weather Alerts</h3>
+            <div class="alert-list">
+                <div class="alert-item status--warning">
+                    <span class="alert-icon">⚠️</span>
+                    <div class="alert-content">
+                        <span class="alert-title" data-en="Heavy Rain Alert" data-hi="तेज बारिश अलर्ट" data-pb="ਭਾਰੀ ਬਾਰਿਸ਼ ਚੇਤਾਵਨੀ">Heavy Rain Alert</span>
+                        <span class="alert-desc" data-en="Expected on Day 4-5. Secure your crops." data-hi="दिन 4-5 पर अपेक्षित। अपनी फसलों को सुरक्षित करें।" data-pb="ਦਿਨ 4-5 'ਤੇ ਸੰਭਾਵਨਾ। ਆਪਣੀ ਫਸਲ ਨੂੰ ਸੁਰੱਖਿਅਤ ਕਰੋ।">Expected on Day 4-5. Secure your crops.</span>
+                    </div>
+                    <button class="speak-alert-btn" onclick="speakAlert(this)">🔊</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="farming-recommendations">
+            <h3 data-en="Farming Recommendations" data-hi="कृषि सिफारिशें" data-pb="ਖੇਤੀ ਸਿਫ਼ਾਰਿਸ਼ਾਂ">Farming Recommendations</h3>
+            <div class="recommendation-cards">
+                <div class="recommendation-card">
+                    <span class="rec-icon">💧</span>
+                    <div class="rec-content">
+                        <h4 data-en="Perfect for Irrigation" data-hi="सिंचाई के लिए उत्तम" data-pb="ਸਿੰਚਾਈ ਲਈ ਸਹੀ">Perfect for Irrigation</h4>
+                        <p data-en="Current conditions ideal for watering crops. Best time: 6-8 AM" data-hi="फसलों को पानी देने के लिए वर्तमान स्थिति आदर्श। सबसे अच्छा समय: 6-8 AM" data-pb="ਫਸਲਾਂ ਨੂੰ ਪਾਣੀ ਦੇਣ ਲਈ ਮੌਜੂਦਾ ਹਾਲਾਤ ਆਦਰਸ਼। ਸਭ ਤੋਂ ਵਧੀਆ ਸਮਾਂ: 6-8 AM">Current conditions ideal for watering crops. Best time: 6-8 AM</p>
+                    </div>
+                    <button class="rec-action-btn">✓</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Learning Screen -->
+    <div class="screen" id="learningScreen">
+        <div class="screen-header enhanced">
+            <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
+            <h2 data-en="Learning Hub" data-hi="शिक्षा केंद्र" data-pb="ਸਿੱਖਿਆ ਕੇਂਦਰ">Learning Hub</h2>
+            <div class="header-actions">
+                <button class="voice-search-btn" onclick="startVoiceSearch('learning')">🎤</button>
+                <button class="download-btn" onclick="showDownloads()" title="Downloaded content">📥</button>
+            </div>
+        </div>
+        
+        <div class="search-section enhanced">
+            <div class="search-input-group">
+                <input type="text" class="form-control search-input" id="learningSearch" placeholder="Search tutorials, courses...">
+                <button class="search-btn">🔍</button>
+                <button class="voice-search-btn" onclick="startVoiceSearch('learning')">🎤</button>
+            </div>
+        </div>
+        
+        <div class="learning-progress">
+            <h3 data-en="Your Learning Progress" data-hi="आपकी शिक्षा प्रगति" data-pb="ਤੁਹਾਡੀ ਸਿੱਖਿਆ ਤਰੱਕੀ">Your Learning Progress</h3>
+            <div class="progress-cards">
+                <div class="progress-card">
+                    <div class="progress-icon">🌱</div>
+                    <div class="progress-info">
+                        <span class="progress-title" data-en="Crop Management" data-hi="फसल प्रबंधन" data-pb="ਫਸਲ ਪ੍ਰਬੰਧਨ">Crop Management</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 75%"></div>
+                        </div>
+                        <span class="progress-percent">75%</span>
+                    </div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-icon">🐛</div>
+                    <div class="progress-info">
+                        <span class="progress-title" data-en="Pest Control" data-hi="कीट नियंत्रण" data-pb="ਕੀਟ ਨਿਯੰਤਰਣ">Pest Control</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 40%"></div>
+                        </div>
+                        <span class="progress-percent">40%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="category-tabs enhanced">
+            <button class="tab-btn active" onclick="showCategory('all')" data-en="All" data-hi="सभी" data-pb="ਸਭ">All</button>
+            <button class="tab-btn" onclick="showCategory('crop')" data-en="Crop Management" data-hi="फसल प्रबंधन" data-pb="ਫਸਲ ਪ੍ਰਬੰਧਨ">Crop Management</button>
+            <button class="tab-btn" onclick="showCategory('pest')" data-en="Pest Control" data-hi="कीट नियंत्रण" data-pb="ਕੀਟ ਨਿਯੰਤਰਣ">Pest Control</button>
+            <button class="tab-btn" onclick="showCategory('irrigation')" data-en="Irrigation" data-hi="सिंचाई" data-pb="ਸਿੰਚਾਈ">Irrigation</button>
+        </div>
+        
+        <div class="tutorial-list enhanced" id="tutorialList">
+            <!-- Tutorials populated by JS -->
+        </div>
+    </div>
+
+    <!-- Community Screen -->
+    <div class="screen" id="communityScreen">
+        <div class="screen-header enhanced">
+            <button class="back-btn" onclick="showScreen('homeScreen')">←</button>
+            <h2 data-en="Community Forum" data-hi="सामुदायिक मंच" data-pb="ਕਮਿਊਨਿਟੀ ਫੋਰਮ">Community Forum</h2>
+            <div class="header-actions">
+                <button class="voice-post-btn" onclick="startVoicePost()">🎤</button>
+                <button class="expert-chat-btn" onclick="showExpertChat()">👨‍🌾</button>
+            </div>
+        </div>
+        
+        <div class="community-actions">
+            <button class="btn btn--primary btn--full-width" onclick="showPostQuestion()">
+                <span class="btn-icon">✏️</span>
+                <span data-en="Ask Question" data-hi="प्रश्न पूछें" data-pb="ਸਵਾਲ ਪੁੱਛੋ">Ask Question</span>
+            </button>
+            <button class="btn btn--secondary voice-post-btn" onclick="startVoicePost()">
+                <span class="btn-icon">🎤</span>
+                <span data-en="Voice Post" data-hi="आवाज पोस्ट" data-pb="ਵੌਇਸ ਪੋਸਟ">Voice Post</span>
+            </button>
+        </div>
+        
+        <div class="expert-panel">
+            <h3 data-en="Ask the Experts" data-hi="विशेषज्ञों से पूछें" data-pb="ਮਾਹਰਾਂ ਤੋਂ ਪੁੱਛੋ">Ask the Experts</h3>
+            <div class="expert-list">
+                <div class="expert-card online">
+                    <div class="expert-avatar">👨‍🌾</div>
+                    <div class="expert-info">
+                        <span class="expert-name">Dr. Rajesh Kumar</span>
+                        <span class="expert-specialty" data-en="Crop Specialist" data-hi="फसल विशेषज्ञ" data-pb="ਫਸਲ ਮਾਹਰ">Crop Specialist</span>
+                    </div>
+                    <div class="expert-status online">●</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-categories enhanced">
+            <button class="category-pill active" data-category="all">
+                <span data-en="All" data-hi="सभी" data-pb="ਸਭ">All</span>
+            </button>
+            <button class="category-pill" data-category="seeds">
+                <span data-en="Seeds" data-hi="बीज" data-pb="ਬੀਜ">Seeds</span>
+            </button>
+            <button class="category-pill" data-category="irrigation">
+                <span data-en="Irrigation" data-hi="सिंचाई" data-pb="ਸਿੰਚਾਈ">Irrigation</span>
+            </button>
+            <button class="category-pill" data-category="harvest">
+                <span data-en="Harvest" data-hi="फसल कटाई" data-pb="ਵਾਢੀ">Harvest</span>
+            </button>
+        </div>
+        
+        <div class="forum-list enhanced" id="forumList">
+            <!-- Forum posts populated by JS -->
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav enhanced" id="bottomNav" style="display: none;">
+        <button class="nav-item active" onclick="showScreen('homeScreen')">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label" data-en="Home" data-hi="होम" data-pb="ਘਰ">Home</span>
+        </button>
+        <button class="nav-item" onclick="showScreen('cropAdvisoryScreen')">
+            <span class="nav-icon">🌱</span>
+            <span class="nav-label" data-en="Advisory" data-hi="सलाह" data-pb="ਸਲਾਹ">Advisory</span>
+        </button>
+        <button class="nav-item" onclick="showScreen('weatherScreen')">
+            <span class="nav-icon">🌦️</span>
+            <span class="nav-label" data-en="Weather" data-hi="मौसम" data-pb="ਮੌਸਮ">Weather</span>
+        </button>
+        <button class="nav-item pulse" onclick="showScreen('mandiScreen')">
+            <span class="nav-icon">💰</span>
+            <span class="nav-label" data-en="Prices" data-hi="भाव" data-pb="ਰੇਟ">Prices</span>
+            <div class="nav-badge">LIVE</div>
+        </button>
+        <button class="nav-item" onclick="showScreen('communityScreen')">
+            <span class="nav-icon">👥</span>
+            <span class="nav-label" data-en="Community" data-hi="समुदाय" data-pb="ਕਮਿਊਨਿਟੀ">Community</span>
+        </button>
+    </div>
+
+    <!-- Post Question Modal -->
+    <div class="modal hidden" id="questionModal">
+        <div class="modal-content enhanced">
+            <div class="modal-header">
+                <h3 data-en="Ask a Question" data-hi="प्रश्न पूछें" data-pb="ਸਵਾਲ ਪੁੱਛੋ">Ask a Question</h3>
+                <button class="close-btn" onclick="hidePostQuestion()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" data-en="Category" data-hi="श्रेणी" data-pb="ਸ਼੍ਰੇਣੀ">Category</label>
+                    <select class="form-control">
+                        <option data-en="Select category" data-hi="श्रेणी चुनें" data-pb="ਸ਼੍ਰੇਣੀ ਚੁਣੋ">Select category</option>
+                        <option data-en="Seeds" data-hi="बीज" data-pb="ਬੀਜ">Seeds</option>
+                        <option data-en="Irrigation" data-hi="सिंचाई" data-pb="ਸਿੰਚਾਈ">Irrigation</option>
+                        <option data-en="Harvest" data-hi="फसल कटाई" data-pb="ਵਾਢੀ">Harvest</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-en="Your Question" data-hi="आपका प्रश्न" data-pb="ਤੁਹਾਡਾ ਸਵਾਲ">Your Question</label>
+                    <textarea class="form-control" rows="4" id="questionText" placeholder="Describe your question in detail..."></textarea>
+                    <button class="voice-input-btn textarea-voice" onclick="startVoiceInput('question')">🎤</button>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn--secondary" onclick="hidePostQuestion()">
+                        <span data-en="Cancel" data-hi="रद्द करें" data-pb="ਰੱਦ ਕਰੋ">Cancel</span>
+                    </button>
+                    <button class="btn btn--primary">
+                        <span data-en="Post Question" data-hi="प्रश्न पोस्ट करें" data-pb="ਸਵਾਲ ਪੋਸਟ ਕਰੋ">Post Question</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel hidden" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3 data-en="Notifications" data-hi="सूचनाएं" data-pb="ਨੋਟਿਫਿਕੇਸ਼ਨ">Notifications</h3>
+            <button class="close-notifications" onclick="hideNotifications()">×</button>
+        </div>
+        <div class="notifications-list">
+            <div class="notification-item urgent">
+                <span class="notification-icon">⚠️</span>
+                <div class="notification-content">
+                    <span class="notification-title" data-en="Weather Alert" data-hi="मौसम चेतावनी" data-pb="ਮੌਸਮ ਚੇਤਾਵਨੀ">Weather Alert</span>
+                    <span class="notification-desc" data-en="Heavy rain expected tomorrow" data-hi="कल तेज बारिश की संभावना" data-pb="ਕੱਲ੍ਹ ਭਾਰੀ ਬਾਰਿਸ਼ ਦੀ ਸੰਭਾਵਨਾ">Heavy rain expected tomorrow</span>
+                    <span class="notification-time">5 min ago</span>
+                </div>
+            </div>
+            <div class="notification-item success">
+                <span class="notification-icon">💰</span>
+                <div class="notification-content">
+                    <span class="notification-title" data-en="Price Alert" data-hi="कीमत अलर्ट" data-pb="ਕੀਮਤ ਚੇਤਾਵਨੀ">Price Alert</span>
+                    <span class="notification-desc" data-en="Wheat price increased by ₹50" data-hi="गेहूं की कीमत ₹50 बढ़ी" data-pb="ਕਣਕ ਦੀ ਕੀਮਤ ₹50 ਵਧੀ">Wheat price increased by ₹50</span>
+                    <span class="notification-time">1 hour ago</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
